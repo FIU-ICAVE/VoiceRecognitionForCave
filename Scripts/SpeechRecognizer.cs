@@ -36,6 +36,7 @@ namespace Assets.GoogleCloudSpeech.Scripts {
         private readonly int _inputSampleRate = 16000;
         private readonly string _inputAudioEncoding = "LINEAR16";
         private CommandDispatcher _commandDispatcher;
+        private RecognitionStatus _recognitionStatus;
 
         [Header("Cloud Speech API Configuration")]
         public string GoogleSpeechApiKey = "YOUR_API_KEY";
@@ -52,9 +53,14 @@ namespace Assets.GoogleCloudSpeech.Scripts {
         [Tooltip("Name of button you want recognition to begin on")]
         public string ButtonName = "Jump";
 
+        [Tooltip("Should a textmesh be placed on camera to give user status information")]
+        public bool RecognitionStatus = true;
+
         private void Start() {
             if (!GoogleSpeechApiKey.Equals(string.Empty) || GoogleSpeechApiKey.Equals("YOUR_API_KEY")) {
                 _commandDispatcher = gameObject.GetComponentInChildren<CommandDispatcher>();
+                _recognitionStatus = gameObject.AddComponent<RecognitionStatus>();
+                _recognitionStatus.enabled = RecognitionStatus;
                 _speechClient = new CloudSpeechClient(GetSpeecConfiguration(), gameObject);
                 _speechClient.Initialize(GoogleSpeechApiKey);
             } else {
@@ -67,13 +73,23 @@ namespace Assets.GoogleCloudSpeech.Scripts {
         
         private void Update() {
             if (_speechClient.HasNewResponse()) {
+                if (RecognitionStatus) {
+                    _recognitionStatus.FinishedProcessing();
+                }
                 Debug.Log("Handling new command");
                 _commandDispatcher.HandleCommand(_speechClient.GetResponse());
             }
             _speechClient.Update();
             if (getReal3D.Input.GetButtonDown(ButtonName)) {
+                if (RecognitionStatus) {
+                    _recognitionStatus.Recording();
+                }
+                    
                 _speechClient.BeginRecognizing();
             } else if (getReal3D.Input.GetButtonUp(ButtonName)) {
+                if (RecognitionStatus) {
+                    _recognitionStatus.ProcessingAudio();
+                }
                 _speechClient.FinishRecognizing();
             }
         }
