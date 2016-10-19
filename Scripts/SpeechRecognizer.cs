@@ -24,7 +24,7 @@
 // Developed by Fernando Mendez (http://github.com/fernmndez)
 #endregion
 
-
+using System;
 using GoogleCloudSpeech;
 using GoogleCloudSpeech.Types;
 using UnityEngine;
@@ -38,7 +38,7 @@ namespace Assets.GoogleCloudSpeech.Scripts {
         private CommandHandler _commandHandler;
 
         [Header("Cloud Speech API Configuration")]
-        public string GoogleSpeechApiKey = "";
+        public string GoogleSpeechApiKey = "YOUR_API_KEY";
 
         [Tooltip("https://www.rfc-editor.org/rfc/bcp/bcp47.txt")]
         public string BCP27InputLanguageCode = "en-US";
@@ -53,9 +53,15 @@ namespace Assets.GoogleCloudSpeech.Scripts {
         public string ButtonName = "Jump";
 
         private void Start() {
-            _commandHandler = gameObject.GetComponentInChildren<CommandHandler>();
-            _speechClient = new CloudSpeechClient(GetSpeecConfiguration(), gameObject);
-            _speechClient.Initialize(GoogleSpeechApiKey);
+            if (!GoogleSpeechApiKey.Equals(string.Empty) || GoogleSpeechApiKey.Equals("YOUR_API_KEY")) {
+                _commandHandler = gameObject.GetComponentInChildren<CommandHandler>();
+                _speechClient = new CloudSpeechClient(GetSpeecConfiguration(), gameObject);
+                _speechClient.Initialize(GoogleSpeechApiKey);
+            } else {
+                Debug.LogError("API Key must be set!");
+                Application.Quit();
+                
+            }
         }
 
         
