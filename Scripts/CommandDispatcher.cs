@@ -32,7 +32,7 @@ using Assets.GoogleCloudSpeech.Commands;
 using GoogleCloudSpeech.Types;
 using UnityEngine;
 
-public class CommandHandler : getReal3D.MonoBehaviourWithRpc {
+public class CommandDispatcher : getReal3D.MonoBehaviourWithRpc {
     private List<string> _commandClasses;
     private List<ICommand> _commandInstances;
     [Range(0.0f, 1.0f)]
@@ -88,6 +88,9 @@ public class CommandHandler : getReal3D.MonoBehaviourWithRpc {
                     }
                     if (alternative.confidence > MinimumCommandConfidence) {
                         getReal3D.RpcManager.call("ExecuteCommand", alternative.transcript.ToLower());
+                    } else {
+                        gameObject.AddComponent<AudioSource>().PlayOneShot(Resources.Load<AudioClip>("unable_to_understand"));
+                        Debug.LogWarning("Confidence of response was " +  alternative.confidence + " which is lower than the minimum command confidence\nIf this issue persists you might want to try raising the minimum command confidence.");
                     }
                 }
             }

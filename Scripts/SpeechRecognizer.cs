@@ -35,7 +35,7 @@ namespace Assets.GoogleCloudSpeech.Scripts {
 
         private readonly int _inputSampleRate = 16000;
         private readonly string _inputAudioEncoding = "LINEAR16";
-        private CommandHandler _commandHandler;
+        private CommandDispatcher _commandDispatcher;
 
         [Header("Cloud Speech API Configuration")]
         public string GoogleSpeechApiKey = "YOUR_API_KEY";
@@ -54,7 +54,7 @@ namespace Assets.GoogleCloudSpeech.Scripts {
 
         private void Start() {
             if (!GoogleSpeechApiKey.Equals(string.Empty) || GoogleSpeechApiKey.Equals("YOUR_API_KEY")) {
-                _commandHandler = gameObject.GetComponentInChildren<CommandHandler>();
+                _commandDispatcher = gameObject.GetComponentInChildren<CommandDispatcher>();
                 _speechClient = new CloudSpeechClient(GetSpeecConfiguration(), gameObject);
                 _speechClient.Initialize(GoogleSpeechApiKey);
             } else {
@@ -68,7 +68,7 @@ namespace Assets.GoogleCloudSpeech.Scripts {
         private void Update() {
             if (_speechClient.HasNewResponse()) {
                 Debug.Log("Handling new command");
-                _commandHandler.HandleCommand(_speechClient.GetResponse());
+                _commandDispatcher.HandleCommand(_speechClient.GetResponse());
             }
             _speechClient.Update();
             if (getReal3D.Input.GetButtonDown(ButtonName)) {
